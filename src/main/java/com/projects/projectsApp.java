@@ -6,13 +6,21 @@ import java.util.Objects;
 import java.util.Scanner;
 import com.projects.entity.Project;
 import com.projects.exception.DbException;
+import com.projects.service.ProjectService;
 
-public class projectsApp { 
+
+
+
+public class ProjectsApp { 
     private Scanner scanner = new Scanner(System.in);
-    
-    private List<String> operations = List.of( "1) Add a project");
+    private ProjectService projectService = new ProjectService();
+    private Project cuProject;
+    private List<String> operations = List.of( 
+        "1) Add a project",
+        "2) List projects",
+        "3) Select a project");
     public static void main(String[] args) {
-        new projectsApp().processUserSelections();
+        new ProjectsApp().processUserSelections();
     }
     private void processUserSelections(){
         boolean done = false; 
@@ -30,6 +38,14 @@ public class projectsApp {
                         createProject();
                         break;
 
+                    case 2: 
+                    listProjects();
+                    break;
+
+                    case 3:
+                    selectProject();
+                    break;
+
                     default:
                         System.out.println("\n" + selection + " is not a valid selection. Try again.");
                         break;
@@ -38,10 +54,29 @@ public class projectsApp {
             catch(Exception e) {
                 System.out.println("\nError:" + e + "Try again.");
 
+    
+
             }
         }
     }
 
+    private void selectProject() {
+        listProjects();
+        Integer projectId = getIntInput("Enter a project ID to select a project");
+        cuProject = null;
+
+        cuProject = projectService.fetchProjecById(projectId);
+        if (Objects.isNull(cuProject)) {
+                System.out.println("That is not a valid project");
+        }
+    }
+    private void listProjects() {
+            List<Project> projects = projectService.fetchAllProjects();
+
+            System.out.println("\nProjects:");
+
+            projects.forEach(project -> System.out.println(" " + project.getProjectId() + ": " + project.getProjectName()));
+    }
     private void createProject() {
         String projectName = getStringInput("Enter the project name");
         BigDecimal estimatedHours = getDecimalInput("Enter the estimated hours");
@@ -57,7 +92,7 @@ public class projectsApp {
                 project.setDifficulty(difficulty);
                 project.setNotes(notes);
         
-                Project dbProject = com.projects.service.projectservice. addProject(project);
+                Project dbProject =  projectService.addProject(project);
                 System.out.println("You have successfully created project" + dbProject);
         
             }
@@ -114,5 +149,12 @@ public class projectsApp {
         System.out.println("\nThese are the available selections. Press the Enter key to quit:");
     
     operations.forEach(line -> System.out.println(" " + line));
+
+ if (Objects.isNull(cuProject)) {
+        System.out.println("\nYou are not working with a project.");
     }
+    else {
+        System.out.println("\nYou are working with project: " + cuProject);
+    }
+}
 }

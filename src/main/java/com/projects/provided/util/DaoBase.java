@@ -314,7 +314,6 @@ public abstract class DaoBase {
    * @author Promineo
    *
    */
-  @SuppressWarnings("serial")
   static class DaoException extends RuntimeException {
 
     /**
